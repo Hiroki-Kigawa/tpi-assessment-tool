@@ -1,7 +1,14 @@
 "use strict";
 
 import { loadTpiNextData, loadAgileTpiData, findUnanswered } from "../maturity.js";
-import { getDraftAnswers, saveDraftAnswers, getDraftNotes, saveDraftNotes } from "../state.js";
+import {
+  getDraftAnswers,
+  saveDraftAnswers,
+  getDraftNotes,
+  saveDraftNotes,
+  clearDraftAnswers,
+  clearDraftNotes,
+} from "../state.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -79,6 +86,47 @@ export async function renderAssessment(container, framework) {
     // ここでは遷移するだけでよい（直接#/resultへアクセスした場合と同じ経路になる）。
     location.hash = `#/result/${framework}`;
   });
+
+  setUpClearModal(container, framework);
+}
+
+function setUpClearModal(container, framework) {
+  const openBtn = container.querySelector("#clear-answers-btn");
+  const modal = container.querySelector("#clear-modal");
+  const cancelBtn = container.querySelector("#clear-modal-cancel");
+  const confirmBtn = container.querySelector("#clear-modal-confirm");
+
+  const openModal = () => {
+    modal.hidden = false;
+    cancelBtn.focus();
+  };
+
+  const closeModal = () => {
+    modal.hidden = true;
+  };
+
+  openBtn.addEventListener("click", openModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  // 背景（オーバーレイ）自体をクリックした場合のみ閉じる（ダイアログ内クリックでは閉じない）。
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) closeModal();
+  });
+
+  // documentにリスナーを付けると再描画のたびに蓄積してしまうため、
+  // モーダル自身に付ける（開いた時点でcancelBtnへフォーカスするので、
+  // モーダル内にフォーカスがある限りここへバブリングしてくる）。
+  modal.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeModal();
+  });
+
+  confirmBtn.addEventListener("click", () => {
+    clearDraftAnswers(framework);
+    clearDraftNotes(framework);
+    closeModal();
+    renderAssessment(container, framework);
+    window.scrollTo(0, 0);
+  });
 }
 
 function buildMarkup(framework, data, answers, notes) {
@@ -90,7 +138,10 @@ function buildMarkup(framework, data, answers, notes) {
     <div class="assessment">
       <a class="back-link" href="#/">← トップに戻る</a>
       <header class="assessment__header">
-        <h1>${escapeHtml(FRAMEWORK_TITLES[framework])}</h1>
+        <div class="assessment__header-row">
+          <h1>${escapeHtml(FRAMEWORK_TITLES[framework])}</h1>
+          <button type="button" id="clear-answers-btn" class="btn btn--outline-danger">回答をクリアする</button>
+        </div>
         <p class="assessment__lead">
           すべてのチェックポイントについて「満たしている」「満たしていない」「該当なし」のいずれかを選択してください。
         </p>
@@ -109,6 +160,17 @@ function buildMarkup(framework, data, answers, notes) {
           <button type="submit" class="btn btn--primary">診断する</button>
         </div>
       </form>
+    </div>
+
+    <div id="clear-modal" class="modal-overlay" hidden>
+      <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="clear-modal-title" aria-describedby="clear-modal-desc">
+        <h2 id="clear-modal-title">回答をクリアしますか？</h2>
+        <p id="clear-modal-desc">現在の回答・メモがすべて削除され、画面が初期状態に戻ります。この操作は取り消せません。</p>
+        <div class="modal__actions">
+          <button type="button" id="clear-modal-cancel" class="btn btn--secondary">キャンセル</button>
+          <button type="button" id="clear-modal-confirm" class="btn btn--danger">削除する</button>
+        </div>
+      </div>
     </div>
   `;
 }
