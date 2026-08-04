@@ -1,9 +1,11 @@
 "use strict";
 
 // 成熟度マトリクスの描画。
-// TPI NEXTは Initial / Controlled / Efficient / Optimizing の4段階、
+// TPI NEXTは Controlled / Efficient / Optimizing の3段階、
 // Agile TPIは Professional / Team / Organization の3軸で構成される
 // （元Excelの `Test maturity matrix` シートに相当。ALGORITHM.md参照）。
+// 元シートにはInitial列（チェックポイントを持たず全プロジェクトが到達済みの
+// 基礎段階）もあるが、表示上の情報価値が低いため列自体を省略している。
 
 import { escapeHtml } from "../util.js";
 
@@ -69,7 +71,6 @@ export function renderTpiNextMatrix(matrix, keyAreas) {
   const header = `
     <div class="matrix-row matrix-row--header">
       <div class="matrix-row__label">キーエリア</div>
-      <div class="matrix-row__group" style="--cell-count:1">Initial</div>
       ${TPI_NEXT_STAGES.map(
         (stage) => `<div class="matrix-row__group" style="--cell-count:${max[stage]}">${TPI_NEXT_STAGE_LABELS[stage]}</div>`
       ).join("")}
@@ -86,9 +87,6 @@ export function renderTpiNextMatrix(matrix, keyAreas) {
       return `
         <div class="matrix-row">
           <div class="matrix-row__label">${escapeHtml(ka.code)} ${escapeHtml(ka.nameJa)}</div>
-          <div class="matrix-row__group" style="--cell-count:1">
-            <span class="matrix-cell matrix-cell--met" title="Initial（すべてのプロジェクトが到達している基礎段階）"></span>
-          </div>
           ${groups}
         </div>
       `;
