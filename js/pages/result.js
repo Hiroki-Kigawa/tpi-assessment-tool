@@ -57,6 +57,18 @@ export async function renderResult(container, framework) {
       : renderAgileTpiMatrix(matrix, data.keyAreas);
   const spiderHtml = renderSpiderChart(percentages);
 
+  const percentageRows = percentages
+    .map(
+      (p) => `
+        <tr>
+          <td>${escapeHtml(p.keyAreaCode)}</td>
+          <td>${escapeHtml(p.nameJa)}</td>
+          <td>${p.percentage}%</td>
+        </tr>
+      `
+    )
+    .join("");
+
   container.innerHTML = `
     <div class="result">
       <a class="back-link" href="#/assessment/${framework}">← 回答を修正する</a>
@@ -79,6 +91,19 @@ export async function renderResult(container, framework) {
           <span class="legend-item"><span class="legend-swatch legend-swatch--max"></span>満点（100%）</span>
         </div>
         ${spiderHtml}
+      </section>
+
+      <section class="result-section">
+        <h2>診断結果（簡易表示）</h2>
+        <p class="result-section__lead">
+          上記グラフの数値を、キーエリアごとの達成率一覧として表示しています。
+        </p>
+        <table class="result-table">
+          <thead>
+            <tr><th>No.</th><th>キーエリア</th><th>達成率</th></tr>
+          </thead>
+          <tbody>${percentageRows}</tbody>
+        </table>
       </section>
 
       <p class="result__notice">
