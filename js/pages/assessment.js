@@ -1,0 +1,240 @@
+"use strict";
+
+import {
+  loadTpiNextData,
+  loadAgileTpiData,
+  findUnanswered,
+  computeTpiNextMatrix,
+  computeAgileTpiMatrix,
+  computeKeyAreaPercentages,
+} from "../maturity.js";
+import { setAssessment } from "../state.js";
+import { escapeHtml } from "../util.js";
+
+const FRAMEWORK_TITLES = {
+  "tpi-next": "TPI NEXT 診断",
+  "agile-tpi": "Agile TPI 診断",
+};
+
+const STAGE_LABELS = {
+  controlled: "Controlled",
+  efficient: "Efficient",
+  optimizing: "Optimizing",
+};
+
+const AXIS_LABELS = {
+  professional: "Professional",
+  team: "Team",
+  organization: "Organization",
+};
+
+export async function renderAssessment(container, framework) {
+  container.innerHTML = `<p class="loading">読み込み中...</p>`;
+
+  const data =
+    framework === "tpi-next" ? await loadTpiNextData() : await loadAgileTpiData();
+  const answers = {};
+
+  container.innerHTML = buildMarkup(framework, data);
+
+  const form = container.querySelector("#assessment-form");
+  const totalCount = data.checkpoints.length;
+
+  updateProgress(container, answers, totalCount);
+
+  form.addEventListener("change", (event) => {
+    const radio = event.target.closest("input[type=radio]");
+    if (!radio) return;
+
+    const checkpointId = radio.dataset.checkpointId;
+    answers[checkpointId] = radio.value;
+
+    const block = container.querySelector(`[data-checkpoint-block="${cssAttrEscape(checkpointId)}"]`);
+    if (block) block.classList.remove("checkpoint--error");
+
+    updateProgress(container, answers, totalCount);
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    clearValidationErrors(container);
+
+    const unanswered = findUnanswered(data.checkpoints, answers);
+    if (unanswered.length > 0) {
+      showValidationErrors(container, unanswered);
+      return;
+    }
+
+    const matrix =
+      framework === "tpi-next"
+        ? computeTpiNextMatrix(data, answers)
+        : computeAgileTpiMatrix(data, answers);
+    const percentages = computeKeyAreaPercentages(data.keyAreas, data.checkpoints, answers);
+
+    setAssessment({
+      framework,
+      answers,
+      matrix,
+      percentages,
+      keyAreas: data.keyAreas,
+    });
+
+    location.hash = `#/result/${framework}`;
+  });
+}
+
+function buildMarkup(framework, data) {
+  const keyAreaSections = data.keyAreas
+    .map((ka) => buildKeyAreaSection(framework, ka, data))
+    .join("");
+
+  return `
+    <div class="assessment">
+      <a class="back-link" href="#/">← トップに戻る</a>
+      <header class="assessment__header">
+        <h1>${escapeHtml(FRAMEWORK_TITLES[framework])}</h1>
+        <p class="assessment__lead">
+          すべてのチェックポイントについて「満たしている」「満たしていない」「該当なし」のいずれかを選択してください。
+        </p>
+      </header>
+
+      <div class="progress" aria-live="polite">
+        <div class="progress__bar-track"><div id="progress-bar" class="progress__bar-fill"></div></div>
+        <span id="progress-count" class="progress__count"></span>
+      </div>
+
+      <div id="validation-message" class="validation-message" hidden></div>
+
+      <form id="assessment-form" novalidate>
+        ${keyAreaSections}
+        <div class="assessment__submit">
+          <button type="submit" class="btn btn--primary">診断する</button>
+        </div>
+      </form>
+    </div>
+  `;
+}
+
+function buildKeyAreaSection(framework, keyArea, data) {
+  const items = data.checkpoints.filter((cp) => cp.keyAreaCode === keyArea.code);
+  const body =
+    framework === "tpi-next"
+      ? buildTpiNextStages(keyArea, items, data.stages)
+      : buildCheckpointList(items);
+
+  return `
+    <details class="key-area" open>
+      <summary class="key-area__summary">
+        <span class="key-area__code">${escapeHtml(keyArea.code)}</span>
+        <span class="key-area__name">${escapeHtml(keyArea.nameJa)}</span>
+      </summary>
+      ${keyArea.descriptionJa ? `<p class="key-area__description">${escapeHtml(keyArea.descriptionJa)}</p>` : ""}
+      ${body}
+    </details>
+  `;
+}
+
+function buildTpiNextStages(keyArea, items, stages) {
+  return ["controlled", "efficient", "optimizing"]
+    .map((stageKey) => {
+      const stageItems = items.filter((cp) => cp.stage === stageKey);
+      if (stageItems.length === 0) return "";
+
+      const stageInfo = stages.find(
+        (s) => s.keyAreaCode === keyArea.code && s.stage === stageKey
+      );
+
+      return `
+        <div class="stage">
+          <h3 class="stage__title">${STAGE_LABELS[stageKey]}</h3>
+          ${stageInfo ? `<p class="stage__description">${escapeHtml(stageInfo.descriptionJa)}</p>` : ""}
+          ${buildCheckpointList(stageItems)}
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function buildCheckpointList(items) {
+  return `<ol class="checkpoint-list">${items.map(buildCheckpointRow).join("")}</ol>`;
+}
+
+function buildCheckpointRow(checkpoint) {
+  const axisBadge = checkpoint.axis
+    ? `<span class="badge badge--axis">${AXIS_LABELS[checkpoint.axis]}</span>`
+    : "";
+
+  return `
+    <li class="checkpoint" data-checkpoint-block="${escapeHtml(checkpoint.id)}">
+      <div class="checkpoint__text">
+        ${axisBadge}
+        <span>${escapeHtml(checkpoint.textJa)}</span>
+      </div>
+      <div class="checkpoint__options" role="radiogroup">
+        ${buildRadioOption(checkpoint.id, "met", "満たしている")}
+        ${buildRadioOption(checkpoint.id, "not_met", "満たしていない")}
+        ${buildRadioOption(checkpoint.id, "n_a", "該当なし")}
+      </div>
+    </li>
+  `;
+}
+
+function buildRadioOption(checkpointId, value, label) {
+  const inputId = `cp-${checkpointId}-${value}`;
+  return `
+    <label class="radio-pill" for="${escapeHtml(inputId)}">
+      <input
+        type="radio"
+        id="${escapeHtml(inputId)}"
+        name="cp-${escapeHtml(checkpointId)}"
+        value="${value}"
+        data-checkpoint-id="${escapeHtml(checkpointId)}"
+      />
+      <span>${label}</span>
+    </label>
+  `;
+}
+
+function updateProgress(container, answers, totalCount) {
+  const answeredCount = Object.keys(answers).length;
+  const percentage = totalCount === 0 ? 0 : Math.round((answeredCount / totalCount) * 100);
+
+  container.querySelector("#progress-bar").style.width = `${percentage}%`;
+  container.querySelector("#progress-count").textContent =
+    `${answeredCount} / ${totalCount} 件回答済み`;
+}
+
+function clearValidationErrors(container) {
+  container
+    .querySelectorAll(".checkpoint--error")
+    .forEach((el) => el.classList.remove("checkpoint--error"));
+
+  const message = container.querySelector("#validation-message");
+  message.hidden = true;
+  message.textContent = "";
+}
+
+function showValidationErrors(container, unansweredIds) {
+  const message = container.querySelector("#validation-message");
+  message.hidden = false;
+  message.textContent = `未回答のチェックポイントが${unansweredIds.length}件あります。背景色のついた項目を確認してください。`;
+
+  let firstBlock = null;
+  for (const id of unansweredIds) {
+    const block = container.querySelector(`[data-checkpoint-block="${cssAttrEscape(id)}"]`);
+    if (!block) continue;
+    block.classList.add("checkpoint--error");
+    if (!firstBlock) firstBlock = block;
+  }
+
+  message.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (firstBlock) {
+    setTimeout(() => firstBlock.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
+  }
+}
+
+// data-checkpoint-block 属性値にチェックポイントID（例 "01.c.1"）をそのまま使うため、
+// querySelector の属性セレクタ内で意図しない文字として解釈されないようエスケープする。
+function cssAttrEscape(value) {
+  return value.replace(/["\\]/g, "\\$&");
+}

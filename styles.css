@@ -1,0 +1,453 @@
+:root {
+  --color-bg: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-text: #1f2430;
+  --color-text-muted: #5b6472;
+  --color-border: #e1e5eb;
+  --color-primary: #2b5a9e;
+  --color-primary-dark: #1f4478;
+  --color-primary-tint: #eaf1fb;
+  --color-met: #2e7d5b;
+  --color-met-bg: #e6f4ed;
+  --color-not-met: #c0392b;
+  --color-not-met-bg: #fbebe9;
+  --color-na: #6b7280;
+  --color-na-bg: #eef0f3;
+  --color-error: #c0392b;
+  --color-error-bg: #fdeceb;
+
+  --radius-s: 4px;
+  --radius-m: 8px;
+  --radius-l: 14px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.7;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--color-primary);
+}
+
+/* ---------- ヘッダー / フッター ---------- */
+
+.app-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.app-logo {
+  display: inline-flex;
+  flex-direction: column;
+  text-decoration: none;
+  line-height: 1.3;
+}
+
+.app-logo__en {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.app-logo__jp {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.view {
+  flex: 1;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.app-footer {
+  padding: 16px 24px;
+  text-align: center;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+/* ---------- トップ画面 ---------- */
+
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.hero h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.hero__lead {
+  color: var(--color-text-muted);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.framework-picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.framework-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px;
+  background: var(--color-surface);
+  border-radius: var(--radius-l);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.framework-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.framework-card h2 {
+  margin: 0;
+  color: var(--color-primary-dark);
+}
+
+.framework-card p {
+  color: var(--color-text-muted);
+  margin: 0;
+  flex: 1;
+}
+
+.framework-card__meta {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.framework-card__cta {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ---------- 診断画面 ---------- */
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.assessment__header h1 {
+  margin: 0 0 8px;
+}
+
+.assessment__lead {
+  color: var(--color-text-muted);
+  margin: 0 0 24px;
+}
+
+.progress {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--color-bg);
+  padding: 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress__bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.progress__bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-primary);
+  transition: width 0.2s ease;
+}
+
+.progress__count {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.validation-message {
+  position: sticky;
+  top: 44px;
+  z-index: 5;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-m);
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.key-area {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-m);
+  margin-bottom: 16px;
+  padding: 4px 20px 20px;
+}
+
+.key-area__summary {
+  cursor: pointer;
+  padding: 16px 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-weight: 700;
+  list-style: none;
+}
+
+.key-area__summary::-webkit-details-marker {
+  display: none;
+}
+
+.key-area__code {
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.key-area__description {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.stage {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border);
+}
+
+.stage__title {
+  margin: 0 0 4px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--color-primary-dark);
+  text-transform: uppercase;
+}
+
+.stage__description {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.checkpoint-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkpoint {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: var(--radius-s);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.checkpoint:last-child {
+  border-bottom: none;
+}
+
+.checkpoint--error {
+  background: var(--color-error-bg);
+}
+
+.checkpoint__text {
+  flex: 1 1 320px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.badge {
+  flex-shrink: 0;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.checkpoint__options {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.radio-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.radio-pill input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radio-pill:has(input:checked) {
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.radio-pill:nth-child(1):has(input:checked) {
+  background: var(--color-met-bg);
+  color: var(--color-met);
+}
+
+.radio-pill:nth-child(2):has(input:checked) {
+  background: var(--color-not-met-bg);
+  color: var(--color-not-met);
+}
+
+.radio-pill:nth-child(3):has(input:checked) {
+  background: var(--color-na-bg);
+  color: var(--color-na);
+}
+
+.radio-pill:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.assessment__submit {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 32px;
+  border-radius: 999px;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: var(--color-primary-dark);
+}
+
+/* ---------- 結果画面（簡易表示） ---------- */
+
+.result__notice {
+  color: var(--color-text-muted);
+  background: var(--color-primary-tint);
+  padding: 12px 16px;
+  border-radius: var(--radius-m);
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+}
+
+.result-table th,
+.result-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.result-table th {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-dark);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--color-text-muted);
+}
+
+.loading,
+.error-message {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 60px 20px;
+}
+
+/* ---------- レスポンシブ ---------- */
+
+@media (max-width: 640px) {
+  .framework-picker {
+    grid-template-columns: 1fr;
+  }
+
+  .checkpoint {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .checkpoint__text {
+    /* flex-basis(320px)は横並び時の目安幅。縦積みでは主軸が縦になり
+       最小高さとして効いてしまうため、縦積み時は無効化する。 */
+    flex: initial;
+  }
+
+  .checkpoint__options {
+    flex-wrap: wrap;
+  }
+}
