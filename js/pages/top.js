@@ -12,7 +12,7 @@ export function renderTop(container) {
 
     <section class="framework-picker">
       <a class="framework-card" href="#/assessment/tpi-next">
-        <h2>TPI NEXT</h2>
+        <h2>TPI NEXT®️</h2>
         <p>
           16のキーエリアを Controlled / Efficient / Optimizing の3段階で評価する、
           伝統的なテストプロセス成熟度モデルです。
