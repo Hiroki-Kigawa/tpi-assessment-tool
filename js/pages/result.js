@@ -94,7 +94,7 @@ export async function renderResult(container, framework) {
       </section>
 
       <section class="result-section">
-        <h2>診断結果（簡易表示）</h2>
+        <h2>キーエリア毎の達成率</h2>
         <p class="result-section__lead">
           上記グラフの数値を、キーエリアごとの達成率一覧として表示しています。
         </p>
