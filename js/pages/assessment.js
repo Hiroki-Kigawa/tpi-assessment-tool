@@ -1,14 +1,7 @@
 "use strict";
 
-import {
-  loadTpiNextData,
-  loadAgileTpiData,
-  findUnanswered,
-  computeTpiNextMatrix,
-  computeAgileTpiMatrix,
-  computeKeyAreaPercentages,
-} from "../maturity.js";
-import { setAssessment, getDraftAnswers } from "../state.js";
+import { loadTpiNextData, loadAgileTpiData, findUnanswered } from "../maturity.js";
+import { getDraftAnswers, saveDraftAnswers } from "../state.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -37,6 +30,8 @@ export async function renderAssessment(container, framework) {
   // getDraftAnswersは呼び出すたびに同じオブジェクト参照を返すため、
   // ここでの変更（change時のanswers[id]=value）がそのまま下書きとして
   // 保持され、結果画面から「回答を修正する」で戻っても選択状態が残る。
+  // change時にsaveDraftAnswers()でlocalStorageへ書き込むため、
+  // ブラウザを閉じても回答が残る。
   const answers = getDraftAnswers(framework);
 
   container.innerHTML = buildMarkup(framework, data, answers);
@@ -52,6 +47,7 @@ export async function renderAssessment(container, framework) {
 
     const checkpointId = radio.dataset.checkpointId;
     answers[checkpointId] = radio.value;
+    saveDraftAnswers();
 
     const block = container.querySelector(`[data-checkpoint-block="${cssAttrEscape(checkpointId)}"]`);
     if (block) block.classList.remove("checkpoint--error");
@@ -69,20 +65,8 @@ export async function renderAssessment(container, framework) {
       return;
     }
 
-    const matrix =
-      framework === "tpi-next"
-        ? computeTpiNextMatrix(data, answers)
-        : computeAgileTpiMatrix(data, answers);
-    const percentages = computeKeyAreaPercentages(data.keyAreas, data.checkpoints, answers);
-
-    setAssessment({
-      framework,
-      answers,
-      matrix,
-      percentages,
-      keyAreas: data.keyAreas,
-    });
-
+    // 結果画面は表示のたびにlocalStorageの回答から算出し直すため、
+    // ここでは遷移するだけでよい（直接#/resultへアクセスした場合と同じ経路になる）。
     location.hash = `#/result/${framework}`;
   });
 }

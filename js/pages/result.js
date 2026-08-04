@@ -1,25 +1,41 @@
 "use strict";
 
-import { getAssessment } from "../state.js";
+import { loadTpiNextData, loadAgileTpiData, findUnanswered, computeKeyAreaPercentages } from "../maturity.js";
+import { getDraftAnswers } from "../state.js";
 import { escapeHtml } from "../util.js";
 
 // 成熟度マトリクス・スパイダーグラフ・改善アドバイス・PDF出力はフェーズ4で実装する。
 // このフェーズ3時点では、診断画面からの遷移とデータ算出が正しく動くことを
 // 確認するための簡易表示にとどめる。
-export function renderResult(container, framework) {
-  const assessment = getAssessment(framework);
+//
+// 結果はどこにも保存せず、表示のたびにlocalStorage上の回答（js/state.js）から
+// 算出し直す。これにより、診断完了直後の遷移でも、後日ブラウザを開き直して
+// このURLに直接アクセスした場合でも同じ結果が再現できる。
+export async function renderResult(container, framework) {
+  container.innerHTML = `<p class="loading">読み込み中...</p>`;
 
-  if (!assessment) {
+  const data =
+    framework === "tpi-next" ? await loadTpiNextData() : await loadAgileTpiData();
+  const answers = getDraftAnswers(framework);
+  const unanswered = findUnanswered(data.checkpoints, answers);
+
+  if (unanswered.length > 0) {
+    const answeredCount = data.checkpoints.length - unanswered.length;
     container.innerHTML = `
       <div class="empty-state">
-        <p>診断データが見つかりませんでした。ページの再読み込みやリンクからの直接アクセスでは結果が保持されません。トップページから診断をやり直してください。</p>
-        <a class="btn btn--primary" href="#/">トップに戻る</a>
+        <p>
+          診断がまだ完了していません（${answeredCount} / ${data.checkpoints.length}件回答済み）。
+          診断画面ですべてのチェックポイントに回答してください。
+        </p>
+        <a class="btn btn--primary" href="#/assessment/${framework}">診断を続ける</a>
       </div>
     `;
     return;
   }
 
-  const rows = assessment.percentages
+  const percentages = computeKeyAreaPercentages(data.keyAreas, data.checkpoints, answers);
+
+  const rows = percentages
     .map(
       (p) => `
         <tr>

@@ -24,7 +24,7 @@ async function render() {
     } else if (route === "assessment" && FRAMEWORKS.has(framework)) {
       await renderAssessment(view, framework);
     } else if (route === "result" && FRAMEWORKS.has(framework)) {
-      renderResult(view, framework);
+      await renderResult(view, framework);
     } else {
       location.hash = "#/";
     }
