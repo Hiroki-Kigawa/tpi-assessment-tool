@@ -1,0 +1,242 @@
+[
+  {
+    "keyAreaCode": "01",
+    "stage": "controlled",
+    "descriptionJa": "利害関係者は、合意したリソースを使えるように準備することで、テストプロセスを支援しコミットする。"
+  },
+  {
+    "keyAreaCode": "01",
+    "stage": "efficient",
+    "descriptionJa": "利害関係者は、変更の影響を予測してテストプロセスを適切に対応させることができる。"
+  },
+  {
+    "keyAreaCode": "01",
+    "stage": "optimizing",
+    "descriptionJa": "利害関係者は、自分がプロセス改善の共同責任者であることを認識し、プロセス改善を促進している。"
+  },
+  {
+    "keyAreaCode": "02",
+    "stage": "controlled",
+    "descriptionJa": "テスト活動を早期に開始して、体系的に準備を進めている。"
+  },
+  {
+    "keyAreaCode": "02",
+    "stage": "efficient",
+    "descriptionJa": "テスト作業への関与が、信頼性の高いテストプロセスの成果や欠陥の予防につながっている。"
+  },
+  {
+    "keyAreaCode": "02",
+    "stage": "optimizing",
+    "descriptionJa": "テスト作業がプロジェクトに関与しており、プロジェクトとテストプロセスの両方が最適化されている。"
+  },
+  {
+    "keyAreaCode": "03",
+    "stage": "controlled",
+    "descriptionJa": "テスト戦略によって、テストレベルおよびテスト活動の間にテスト工数とリソースを分配できる。"
+  },
+  {
+    "keyAreaCode": "03",
+    "stage": "efficient",
+    "descriptionJa": "テスト戦略を用いて、「関与するすべての利害関係者、および利用可能な工数やリソース」と、「分析したプロダクトリスクとそのテストカバレッジ」の間の適切なバランスを達成している。"
+  },
+  {
+    "keyAreaCode": "03",
+    "stage": "optimizing",
+    "descriptionJa": "テスト戦略の手法を容易かつ妥当に適用できるように、十分に保守している。"
+  },
+  {
+    "keyAreaCode": "04",
+    "stage": "controlled",
+    "descriptionJa": "テスト組織により、テストの取り組み方やテスト関連プロダクト、手順、合意事項、明確なテスト結果のフォーマットが統一されている。"
+  },
+  {
+    "keyAreaCode": "04",
+    "stage": "efficient",
+    "descriptionJa": "テスト組織は、適切なテストの専門知識や経験を適切な場所に配置できる。"
+  },
+  {
+    "keyAreaCode": "04",
+    "stage": "optimizing",
+    "descriptionJa": "テスト組織は、適切なテストの専門知識や経験を適切な場所に配置できる。"
+  },
+  {
+    "keyAreaCode": "05",
+    "stage": "controlled",
+    "descriptionJa": "適切な決定は、関係するすべての人々に情報を伝達することによって可能となる。"
+  },
+  {
+    "keyAreaCode": "05",
+    "stage": "efficient",
+    "descriptionJa": "対象となる受け手に対する簡潔な情報の形態と内容が、作業の生産性向上に貢献する。"
+  },
+  {
+    "keyAreaCode": "05",
+    "stage": "optimizing",
+    "descriptionJa": "コミュニケーションは、チームビルディングの1つの手段である。"
+  },
+  {
+    "keyAreaCode": "06",
+    "stage": "controlled",
+    "descriptionJa": "テストチームと利害関係者は、何をどのように報告するかについて合意しており、情報不足や情報過多を防いでいる。"
+  },
+  {
+    "keyAreaCode": "06",
+    "stage": "efficient",
+    "descriptionJa": "報告は、対象となるグループの意思決定プロセスを支援できるように調整がなされている。"
+  },
+  {
+    "keyAreaCode": "06",
+    "stage": "optimizing",
+    "descriptionJa": "報告は、SDLCを最適化するための情報を提供している。"
+  },
+  {
+    "keyAreaCode": "07",
+    "stage": "controlled",
+    "descriptionJa": "先を見越したテストプロセスの管理によって、テストに課せられた任務の遂行が満足のいくものとなる。"
+  },
+  {
+    "keyAreaCode": "07",
+    "stage": "efficient",
+    "descriptionJa": "明確な権限をもってテストプロセスを管理すると、テストプロジェクトを計画どおりに進めるために必要な調整を即座に行うことができる。"
+  },
+  {
+    "keyAreaCode": "07",
+    "stage": "optimizing",
+    "descriptionJa": "テストプロセス管理から得た教訓によって、期待する最終結果に向けて、テストプロジェクトを効果的かつ効率的に舵取りしている。"
+  },
+  {
+    "keyAreaCode": "08",
+    "stage": "controlled",
+    "descriptionJa": "各活動に対して必要なリソース量が予測できている。"
+  },
+  {
+    "keyAreaCode": "08",
+    "stage": "efficient",
+    "descriptionJa": "正式な技法によって、見積もりや計画が信頼性のあるものになっている。"
+  },
+  {
+    "keyAreaCode": "08",
+    "stage": "optimizing",
+    "descriptionJa": "見積もりは組織の経験データに基づいて行われている。"
+  },
+  {
+    "keyAreaCode": "09",
+    "stage": "controlled",
+    "descriptionJa": "プロジェクトで利用すると決めたメトリクスを使って、テストプロセスの見積もりや監視ができる。"
+  },
+  {
+    "keyAreaCode": "09",
+    "stage": "efficient",
+    "descriptionJa": "メトリクスによって得られた客観性は、測定データの収集や分析にかけた工数以上の価値を持つ。"
+  },
+  {
+    "keyAreaCode": "09",
+    "stage": "optimizing",
+    "descriptionJa": "メトリクスは、絶え間なく変わる情報ニーズに応える。"
+  },
+  {
+    "keyAreaCode": "10",
+    "stage": "controlled",
+    "descriptionJa": "欠陥の追跡と欠陥の状況把握は、個人のレベルで行われている。"
+  },
+  {
+    "keyAreaCode": "10",
+    "stage": "efficient",
+    "descriptionJa": "類似した欠陥を見つけるために、複数の欠陥に共通する特徴を分析している。"
+  },
+  {
+    "keyAreaCode": "10",
+    "stage": "optimizing",
+    "descriptionJa": "将来の欠陥を防ぐために、欠陥の共通特性を分析している。"
+  },
+  {
+    "keyAreaCode": "11",
+    "stage": "controlled",
+    "descriptionJa": "テスト作業に使われるすべてのテスト文書および設計文書は、承認された状態で個々に特定できるように登録されている。"
+  },
+  {
+    "keyAreaCode": "11",
+    "stage": "efficient",
+    "descriptionJa": "すべての（テスト）成果物の関係性が明らかで、最新の状態に保たれている。"
+  },
+  {
+    "keyAreaCode": "11",
+    "stage": "optimizing",
+    "descriptionJa": "テストウェアが、今後のテストプロジェクトで再利用可能な状態になっている。 また、実際に利用されている。"
+  },
+  {
+    "keyAreaCode": "12",
+    "stage": "controlled",
+    "descriptionJa": "テスト活動を早期に開始して、体系的に準備を進めている。"
+  },
+  {
+    "keyAreaCode": "12",
+    "stage": "efficient",
+    "descriptionJa": "明文化したテスト手法は、テストプロジェクトを実践的に支援する。"
+  },
+  {
+    "keyAreaCode": "12",
+    "stage": "optimizing",
+    "descriptionJa": "テスト手法からの逸脱を評価し、手法の強化につなげている。"
+  },
+  {
+    "keyAreaCode": "13",
+    "stage": "controlled",
+    "descriptionJa": "テスト手法の専門スキルと力量を備えたテスト担当者が、テストプロセスを予測可能で扱いやすいものにする。"
+  },
+  {
+    "keyAreaCode": "13",
+    "stage": "efficient",
+    "descriptionJa": "テストに関わる要員は、テスト作業に固有な役割や職務を持って期待どおりにタスクを遂行している。"
+  },
+  {
+    "keyAreaCode": "13",
+    "stage": "optimizing",
+    "descriptionJa": "テストに関わる要員は、品質保証の観点で行動し継続的にスキルの開発と向上に取り組んでいる。"
+  },
+  {
+    "keyAreaCode": "14",
+    "stage": "controlled",
+    "descriptionJa": "テストケースによってテストの反復実行が可能となり、特定の個人への依存がなくなる。"
+  },
+  {
+    "keyAreaCode": "14",
+    "stage": "efficient",
+    "descriptionJa": "テスト戦略に沿って合理的に詳細化したテストケースを設計するために、特定\nのカバレッジに着目する。"
+  },
+  {
+    "keyAreaCode": "14",
+    "stage": "optimizing",
+    "descriptionJa": "テストケース、テスト設計技法、欠陥評価の3つが、テストの有効性を向上させる方法を提供している。"
+  },
+  {
+    "keyAreaCode": "15",
+    "stage": "controlled",
+    "descriptionJa": "テスト作業に必要なテストツールが利用可能であり、実際に利用している。"
+  },
+  {
+    "keyAreaCode": "15",
+    "stage": "efficient",
+    "descriptionJa": "特定のテスト活動を加速させるために、テストツールを活用している。"
+  },
+  {
+    "keyAreaCode": "15",
+    "stage": "optimizing",
+    "descriptionJa": "テストツールとその利用を継続的に評価して、改善している。"
+  },
+  {
+    "keyAreaCode": "16",
+    "stage": "controlled",
+    "descriptionJa": "予期しないテスト対象に対する変更を行わない。"
+  },
+  {
+    "keyAreaCode": "16",
+    "stage": "efficient",
+    "descriptionJa": "テスト環境は、テストレベルやテストタイプの要求に直接関係している。"
+  },
+  {
+    "keyAreaCode": "16",
+    "stage": "optimizing",
+    "descriptionJa": "テスト環境がテスト担当者にサービスとして提供されている。"
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "code": "01",
+    "nameEn": "Stakeholder commitment",
+    "nameJa": "利害関係者のコミットメント",
+    "descriptionJa": "利害関係者のコミットメントと積極的な関与は、効率的なコミュニケーションや協力関係を作るための大事な条件となる。"
+  },
+  {
+    "code": "02",
+    "nameEn": "Degree of involvement",
+    "nameJa": "関与の度合い",
+    "descriptionJa": "テスト作業がプロジェクトに深く関与すると、開始当初からプロダクト品質が向上しやすくなり、テスト活動がプロジェクトのクリティカルパスに残ることを避けられる。"
+  },
+  {
+    "code": "03",
+    "nameEn": "Test strategy",
+    "nameJa": "テスト戦略",
+    "descriptionJa": "テスト戦略とは、工数やリソースをテストプロセスへ最適に割り振るための指針である。"
+  },
+  {
+    "code": "04",
+    "nameEn": "Test organization",
+    "nameJa": "テスト組織",
+    "descriptionJa": "テスト組織は、テストリソース、テスト関連成果物およびテストサービスに関するプロジェクトのニーズを満たす。"
+  },
+  {
+    "code": "05",
+    "nameEn": "Communication",
+    "nameJa": "コミュニケーション",
+    "descriptionJa": "明確なコミュニケーションにより、期待に対して関係者間の共通理解と協力が得られる。"
+  },
+  {
+    "code": "06",
+    "nameEn": "Reporting",
+    "nameJa": "報告",
+    "descriptionJa": "報告は、利害関係者の意思決定プロセスやテストプロジェクトの状況を把握するための重要な知見を提供する。"
+  },
+  {
+    "code": "07",
+    "nameEn": "Test process management",
+    "nameJa": "テストプロセス管理",
+    "descriptionJa": "テストプロセス管理は、与えられた時間とコストとリソースの中で、テストに課せられた任務の遂行を最大化する。"
+  },
+  {
+    "code": "08",
+    "nameEn": "Estimating and planning",
+    "nameJa": "見積もりと計画",
+    "descriptionJa": "見積もりと計画の技法を適切に利用すると、テストプロセスの計画や見積もりが予測可能で信頼のおけるものになる。"
+  },
+  {
+    "code": "09",
+    "nameEn": "Metrics",
+    "nameJa": "メトリクス",
+    "descriptionJa": "メトリクスを使った定量的な観察は、客観性を与える。"
+  },
+  {
+    "code": "10",
+    "nameEn": "Defect management",
+    "nameJa": "欠陥管理",
+    "descriptionJa": "欠陥管理とは、個人レベルとグループレベルの両方で、根本原因分析やガイドラインを利用して欠陥に対処することである。"
+  },
+  {
+    "code": "11",
+    "nameEn": "Testware management",
+    "nameJa": "テストウェア管理",
+    "descriptionJa": "テストウェアの管理によって、テストの成果物間や、テストの成果物と関連する設計文書間の一貫性が確保できる。"
+  },
+  {
+    "code": "12",
+    "nameEn": "Methodology practice",
+    "nameJa": "手法の実践",
+    "descriptionJa": "明文化したテスト手法は、テストプロジェクトの方向を定めるための支援となる。"
+  },
+  {
+    "code": "13",
+    "nameEn": "Tester professionalism",
+    "nameJa": "テスト担当者のプロ意識",
+    "descriptionJa": "テスト担当者のプロ意識に含まれるものは、期待するレベルのテスト活動に必要となる適切なスキル、力量、自律心、機能、知識である。"
+  },
+  {
+    "code": "14",
+    "nameEn": "Test case design",
+    "nameJa": "テストケース設計",
+    "descriptionJa": "テストケース設計とは、テスト戦略に沿って欠陥が検出できるようにテスト実行を導くものである。"
+  },
+  {
+    "code": "15",
+    "nameEn": "Test tools",
+    "nameJa": "テストツール",
+    "descriptionJa": "テストツールは、特定のテスト活動を加速させる。"
+  },
+  {
+    "code": "16",
+    "nameEn": "Test environment",
+    "nameJa": "テスト環境",
+    "descriptionJa": "テスト環境は各テストレベルのゴールを念頭において明確に設計し、実装および保守をする。"
+  }
+]
