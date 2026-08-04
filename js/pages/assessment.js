@@ -8,6 +8,7 @@ import {
   saveDraftNotes,
   clearDraftAnswers,
   clearDraftNotes,
+  clearSavedReview,
 } from "../state.js";
 import { escapeHtml } from "../util.js";
 
@@ -123,6 +124,7 @@ function setUpClearModal(container, framework) {
   confirmBtn.addEventListener("click", () => {
     clearDraftAnswers(framework);
     clearDraftNotes(framework);
+    clearSavedReview(framework);
     closeModal();
     renderAssessment(container, framework);
     window.scrollTo(0, 0);
@@ -165,7 +167,7 @@ function buildMarkup(framework, data, answers, notes) {
     <div id="clear-modal" class="modal-overlay" hidden>
       <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="clear-modal-title" aria-describedby="clear-modal-desc">
         <h2 id="clear-modal-title">回答をクリアしますか？</h2>
-        <p id="clear-modal-desc">現在の回答・メモがすべて削除され、画面が初期状態に戻ります。この操作は取り消せません。</p>
+        <p id="clear-modal-desc">現在の回答・メモ・診断結果画面の短評（編集済みの場合）がすべて削除され、画面が初期状態に戻ります。この操作は取り消せません。</p>
         <div class="modal__actions">
           <button type="button" id="clear-modal-cancel" class="btn btn--secondary">キャンセル</button>
           <button type="button" id="clear-modal-confirm" class="btn btn--danger">削除する</button>

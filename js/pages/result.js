@@ -8,9 +8,10 @@ import {
   computeAgileTpiMatrix,
   computeKeyAreaPercentages,
 } from "../maturity.js";
-import { getDraftAnswers } from "../state.js";
+import { getDraftAnswers, getSavedReview, saveReview } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
 import { renderSpiderChart } from "../charts/spider.js";
+import { generateTpiNextReview, generateAgileTpiReview } from "../review.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -21,8 +22,10 @@ const FRAMEWORK_TITLES = {
 // 結果はどこにも保存せず、表示のたびにlocalStorage上の回答（js/state.js）から
 // 算出し直す。これにより、診断完了直後の遷移でも、後日ブラウザを開き直して
 // このURLに直接アクセスした場合でも同じ結果が再現できる。
+// 短評欄はユーザーが加筆・修正した内容のみlocalStorageに保存し（js/state.js）、
+// 未編集の場合は毎回js/review.jsのルールベースで文言を生成し直す。
 //
-// 短評／改善アドバイスとPDF出力は次フェーズで実装する（PLAN.mdフェーズ5・6）。
+// PDF出力は次フェーズで実装する（PLAN.mdフェーズ6）。
 export async function renderResult(container, framework) {
   container.innerHTML = `<p class="loading">読み込み中...</p>`;
 
@@ -69,6 +72,13 @@ export async function renderResult(container, framework) {
     )
     .join("");
 
+  const defaultReview =
+    framework === "tpi-next"
+      ? generateTpiNextReview(matrix, data.checkpoints, data.keyAreas)
+      : generateAgileTpiReview(matrix, data.checkpoints, data.keyAreas);
+  const savedReview = getSavedReview(framework);
+  const reviewText = savedReview !== null ? savedReview : defaultReview;
+
   container.innerHTML = `
     <div class="result">
       <a class="back-link" href="#/assessment/${framework}">← 回答を修正する</a>
@@ -106,9 +116,22 @@ export async function renderResult(container, framework) {
         </table>
       </section>
 
+      <section class="result-section">
+        <h2>③短評</h2>
+        <p class="result-section__lead">
+          診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（編集内容はこのブラウザに保存されます）。
+        </p>
+        <textarea id="review-textarea" class="review-textarea">${escapeHtml(reviewText)}</textarea>
+      </section>
+
       <p class="result__notice">
-        ③短評／改善アドバイスとPDF出力は次のフェーズで実装予定です。
+        PDF出力は次のフェーズで実装予定です。
       </p>
     </div>
   `;
+
+  const reviewTextarea = container.querySelector("#review-textarea");
+  reviewTextarea.addEventListener("input", () => {
+    saveReview(framework, reviewTextarea.value);
+  });
 }

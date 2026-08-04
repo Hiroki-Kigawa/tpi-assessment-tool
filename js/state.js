@@ -73,3 +73,57 @@ export function saveDraftNotes() {
 export function clearDraftNotes(framework) {
   notesStore.clear(framework);
 }
+
+// 短評はキーエリア別の下書き（answers/notes）と異なり、フレームワークごとに
+// 1つの文字列を持つだけなので専用の軽量ストアにする。未編集（自動生成文言のまま）
+// の場合は保存せず null を返し、呼び出し側でルールベースの文言を都度生成する。
+function createReviewStore(storageKey) {
+  function load() {
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : {};
+    } catch (err) {
+      console.warn(`localStorageから読み込めませんでした（${storageKey}）。この状態では保存されません。`, err);
+      return {};
+    }
+  }
+
+  function persist(data) {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(data));
+    } catch (err) {
+      console.warn(`localStorageへの保存に失敗しました（${storageKey}）。このセッション内でのみ保持されます。`, err);
+    }
+  }
+
+  const data = load();
+
+  return {
+    get(framework) {
+      return Object.prototype.hasOwnProperty.call(data, framework) ? data[framework] : null;
+    },
+    set(framework, text) {
+      data[framework] = text;
+      persist(data);
+    },
+    clear(framework) {
+      delete data[framework];
+      persist(data);
+    },
+  };
+}
+
+const reviewStore = createReviewStore("tpiAssessmentTool.review.v1");
+
+// 保存済みの編集内容（ユーザーが一度でも書き換えたもの）を返す。未編集ならnull。
+export function getSavedReview(framework) {
+  return reviewStore.get(framework);
+}
+
+export function saveReview(framework, text) {
+  reviewStore.set(framework, text);
+}
+
+export function clearSavedReview(framework) {
+  reviewStore.clear(framework);
+}
