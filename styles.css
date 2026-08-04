@@ -387,7 +387,24 @@ a {
   background: var(--color-primary-dark);
 }
 
-/* ---------- 結果画面（簡易表示） ---------- */
+/* ---------- 結果画面 ---------- */
+
+.result h1 {
+  margin: 0 0 24px;
+}
+
+.result-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-l);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.result-section h2 {
+  margin: 0 0 14px;
+  font-size: 18px;
+}
 
 .result__notice {
   color: var(--color-text-muted);
@@ -396,24 +413,176 @@ a {
   border-radius: var(--radius-m);
 }
 
-.result-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  border-radius: var(--radius-m);
-  overflow: hidden;
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-right: 18px;
 }
 
-.result-table th,
-.result-table td {
-  padding: 10px 14px;
-  text-align: left;
+.matrix-legend,
+.spider-legend {
+  margin-bottom: 16px;
+}
+
+.legend-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.legend-swatch--current {
+  background: var(--color-primary);
+}
+
+.legend-swatch--max {
+  background: repeating-linear-gradient(
+    90deg,
+    var(--color-text-muted) 0 4px,
+    transparent 4px 7px
+  );
+}
+
+/* 成熟度マトリクス */
+
+.matrix-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.matrix-table {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 100%;
+}
+
+.matrix-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
   border-bottom: 1px solid var(--color-border);
 }
 
-.result-table th {
-  background: var(--color-primary-tint);
+.matrix-row:last-child {
+  border-bottom: none;
+}
+
+.matrix-row--header {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   color: var(--color-primary-dark);
+  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.matrix-row__label {
+  width: 190px;
+  flex-shrink: 0;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.matrix-row__group {
+  flex-shrink: 0;
+  width: calc(var(--cell-count, 1) * 24px + (var(--cell-count, 1) - 1) * 3px);
+}
+
+.matrix-row--header .matrix-row__group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.matrix-row:not(.matrix-row--header) .matrix-row__group {
+  display: grid;
+  grid-template-columns: repeat(var(--cell-count, 1), 24px);
+  gap: 3px;
+}
+
+.matrix-cell {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  color: #fff;
+}
+
+.matrix-cell--met {
+  background: var(--color-met);
+}
+
+.matrix-cell--not-met {
+  background: var(--color-not-met);
+}
+
+.matrix-cell--na {
+  background: var(--color-na);
+}
+
+.matrix-cell--empty {
+  background: transparent;
+}
+
+/* スパイダーグラフ */
+
+.spider-chart {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.spider-ring,
+.spider-max-polygon {
+  fill: none;
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.spider-max-polygon {
+  stroke: var(--color-text-muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.spider-spoke {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.spider-current-polygon {
+  fill: rgba(43, 90, 158, 0.16);
+  stroke: var(--color-primary);
+  stroke-width: 2;
+}
+
+.spider-marker {
+  fill: var(--color-primary);
+  stroke: #fff;
+  stroke-width: 1.5;
+}
+
+.spider-ring-label {
+  font-size: 10px;
+  fill: var(--color-text-muted);
+}
+
+.spider-axis-label {
+  font-size: 12px;
+  fill: var(--color-text);
 }
 
 .empty-state {
