@@ -62,13 +62,19 @@ function isStageFullyAchieved(matrix, stage) {
   return matrix.filter((c) => c.stage === stage).every((c) => c.status === "met" || c.status === "n_a");
 }
 
+// [クラスタ][キーエリア]（1行目）+ 全角スペース1つに続けてチェックポイント本文（2行目）の形式。
+function formatItem(cell, labels, textById) {
+  const brackets = [cell.cluster || "", ...labels].map((label) => `[${label}]`).join("");
+  return `${brackets}\n　${textById.get(cell.id)}`;
+}
+
 function formatTpiNextItem(cell, textById, nameByKeyArea) {
-  return `・[${nameByKeyArea.get(cell.keyAreaCode)}] ${textById.get(cell.id)}`;
+  return formatItem(cell, [nameByKeyArea.get(cell.keyAreaCode)], textById);
 }
 
 function formatAgileTpiItem(cell, textById, nameByKeyArea) {
   const axisLabel = AGILE_AXIS_LABELS[cell.axis] || cell.axis;
-  return `・[${axisLabel} / ${nameByKeyArea.get(cell.keyAreaCode)}] ${textById.get(cell.id)}`;
+  return formatItem(cell, [axisLabel, nameByKeyArea.get(cell.keyAreaCode)], textById);
 }
 
 /**
