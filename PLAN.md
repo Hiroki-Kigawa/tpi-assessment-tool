@@ -63,6 +63,7 @@ TPI NEXT®および Agile TPI のフレームワークに基づき、開発プ�
   - TPI NEXT：キーエリア→Controlled/Efficient/Optimizingの段階→チェックポイント、の階層表示
   - Agile TPI：キーエリア→チェックポイント（P/T/Oカテゴリのラベル付き）
 - 各チェックポイントは「満たしている／満たしていない／該当なし」の3択（ラジオボタン）
+- 「該当なし」の右側に、チェックポイントごとのメモ欄（テキストエリア）を配置。1行全角15文字前後・5行程度の高さで固定表示し、それを超える分は縦スクロールで見せる（自動リサイズはしない）。回答と同様にlocalStorageへ保存し、任意入力（バリデーション対象外）
 - 画面下部に「診断する」ボタン
 - 未回答チェックポイントがある状態で「診断する」を押すとバリデーションエラー：該当項目に背景色を付けてスクロール誘導
 - 進捗表示（回答数／全体数）は要検討
@@ -88,13 +89,19 @@ TPI NEXT®および Agile TPI のフレームワークに基づき、開発プ�
 
 ## 8. データモデル
 
-サーバー用スキーマは不要。localStorageに保存するのは回答のみとし、マトリクス・達成率・アドバイスは表示のたびに算出する（保存データと算出ロジックの二重管理を避けるため）：
+サーバー用スキーマは不要。localStorageに保存するのは回答とメモのみとし、マトリクス・達成率・アドバイスは表示のたびに算出する（保存データと算出ロジックの二重管理を避けるため）：
 
 ```
-// localStorageキー1つに、フレームワークごとの回答をまとめて保存
+// localStorageキー「tpiAssessmentTool.answers.v1」：フレームワークごとの回答
 {
   "tpi-next": { [checkpointId]: "met" | "not_met" | "n_a" },
   "agile-tpi": { [checkpointId]: "met" | "not_met" | "n_a" }
+}
+
+// localStorageキー「tpiAssessmentTool.notes.v1」：フレームワークごとのメモ（任意入力）
+{
+  "tpi-next": { [checkpointId]: string },
+  "agile-tpi": { [checkpointId]: string }
 }
 ```
 

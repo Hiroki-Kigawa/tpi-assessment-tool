@@ -1,7 +1,7 @@
 "use strict";
 
 import { loadTpiNextData, loadAgileTpiData, findUnanswered } from "../maturity.js";
-import { getDraftAnswers, saveDraftAnswers } from "../state.js";
+import { getDraftAnswers, saveDraftAnswers, getDraftNotes, saveDraftNotes } from "../state.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -31,10 +31,11 @@ export async function renderAssessment(container, framework) {
   // ここでの変更（change時のanswers[id]=value）がそのまま下書きとして
   // 保持され、結果画面から「回答を修正する」で戻っても選択状態が残る。
   // change時にsaveDraftAnswers()でlocalStorageへ書き込むため、
-  // ブラウザを閉じても回答が残る。
+  // ブラウザを閉じても回答が残る。メモも同様の仕組みでgetDraftNotes/saveDraftNotesを使う。
   const answers = getDraftAnswers(framework);
+  const notes = getDraftNotes(framework);
 
-  container.innerHTML = buildMarkup(framework, data, answers);
+  container.innerHTML = buildMarkup(framework, data, answers, notes);
 
   const form = container.querySelector("#assessment-form");
   const totalCount = data.checkpoints.length;
@@ -55,6 +56,15 @@ export async function renderAssessment(container, framework) {
     updateProgress(container, answers, totalCount);
   });
 
+  form.addEventListener("input", (event) => {
+    const textarea = event.target.closest("textarea.checkpoint__note");
+    if (!textarea) return;
+
+    const checkpointId = textarea.dataset.noteCheckpointId;
+    notes[checkpointId] = textarea.value;
+    saveDraftNotes();
+  });
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     clearValidationErrors(container);
@@ -71,9 +81,9 @@ export async function renderAssessment(container, framework) {
   });
 }
 
-function buildMarkup(framework, data, answers) {
+function buildMarkup(framework, data, answers, notes) {
   const keyAreaSections = data.keyAreas
-    .map((ka) => buildKeyAreaSection(framework, ka, data, answers))
+    .map((ka) => buildKeyAreaSection(framework, ka, data, answers, notes))
     .join("");
 
   return `
@@ -103,12 +113,12 @@ function buildMarkup(framework, data, answers) {
   `;
 }
 
-function buildKeyAreaSection(framework, keyArea, data, answers) {
+function buildKeyAreaSection(framework, keyArea, data, answers, notes) {
   const items = data.checkpoints.filter((cp) => cp.keyAreaCode === keyArea.code);
   const body =
     framework === "tpi-next"
-      ? buildTpiNextStages(keyArea, items, data.stages, answers)
-      : buildCheckpointList(items, answers);
+      ? buildTpiNextStages(keyArea, items, data.stages, answers, notes)
+      : buildCheckpointList(items, answers, notes);
 
   return `
     <details class="key-area" open>
@@ -122,7 +132,7 @@ function buildKeyAreaSection(framework, keyArea, data, answers) {
   `;
 }
 
-function buildTpiNextStages(keyArea, items, stages, answers) {
+function buildTpiNextStages(keyArea, items, stages, answers, notes) {
   return ["controlled", "efficient", "optimizing"]
     .map((stageKey) => {
       const stageItems = items.filter((cp) => cp.stage === stageKey);
@@ -136,24 +146,25 @@ function buildTpiNextStages(keyArea, items, stages, answers) {
         <div class="stage">
           <h3 class="stage__title">${STAGE_LABELS[stageKey]}</h3>
           ${stageInfo ? `<p class="stage__description">${escapeHtml(stageInfo.descriptionJa)}</p>` : ""}
-          ${buildCheckpointList(stageItems, answers)}
+          ${buildCheckpointList(stageItems, answers, notes)}
         </div>
       `;
     })
     .join("");
 }
 
-function buildCheckpointList(items, answers) {
+function buildCheckpointList(items, answers, notes) {
   return `<ol class="checkpoint-list">${items
-    .map((cp) => buildCheckpointRow(cp, answers))
+    .map((cp) => buildCheckpointRow(cp, answers, notes))
     .join("")}</ol>`;
 }
 
-function buildCheckpointRow(checkpoint, answers) {
+function buildCheckpointRow(checkpoint, answers, notes) {
   const axisBadge = checkpoint.axis
     ? `<span class="badge badge--axis">${AXIS_LABELS[checkpoint.axis]}</span>`
     : "";
   const selectedValue = answers[checkpoint.id];
+  const noteValue = notes[checkpoint.id] || "";
 
   return `
     <li class="checkpoint" data-checkpoint-block="${escapeHtml(checkpoint.id)}">
@@ -165,9 +176,22 @@ function buildCheckpointRow(checkpoint, answers) {
         ${buildRadioOption(checkpoint.id, "met", "満たしている", selectedValue)}
         ${buildRadioOption(checkpoint.id, "not_met", "満たしていない", selectedValue)}
         ${buildRadioOption(checkpoint.id, "n_a", "該当なし", selectedValue)}
+        ${buildNoteTextarea(checkpoint.id, noteValue)}
       </div>
     </li>
   `;
+}
+
+function buildNoteTextarea(checkpointId, noteValue) {
+  const textareaId = `note-${checkpointId}`;
+  return `<textarea
+      id="${escapeHtml(textareaId)}"
+      class="checkpoint__note"
+      data-note-checkpoint-id="${escapeHtml(checkpointId)}"
+      aria-label="メモ"
+      placeholder="メモ（任意）"
+      maxlength="2000"
+    >${escapeHtml(noteValue)}</textarea>`;
 }
 
 function buildRadioOption(checkpointId, value, label, selectedValue) {
