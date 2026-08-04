@@ -8,7 +8,7 @@ import {
   computeAgileTpiMatrix,
   computeKeyAreaPercentages,
 } from "../maturity.js";
-import { setAssessment } from "../state.js";
+import { setAssessment, getDraftAnswers } from "../state.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -33,9 +33,13 @@ export async function renderAssessment(container, framework) {
 
   const data =
     framework === "tpi-next" ? await loadTpiNextData() : await loadAgileTpiData();
-  const answers = {};
 
-  container.innerHTML = buildMarkup(framework, data);
+  // getDraftAnswersは呼び出すたびに同じオブジェクト参照を返すため、
+  // ここでの変更（change時のanswers[id]=value）がそのまま下書きとして
+  // 保持され、結果画面から「回答を修正する」で戻っても選択状態が残る。
+  const answers = getDraftAnswers(framework);
+
+  container.innerHTML = buildMarkup(framework, data, answers);
 
   const form = container.querySelector("#assessment-form");
   const totalCount = data.checkpoints.length;
@@ -83,9 +87,9 @@ export async function renderAssessment(container, framework) {
   });
 }
 
-function buildMarkup(framework, data) {
+function buildMarkup(framework, data, answers) {
   const keyAreaSections = data.keyAreas
-    .map((ka) => buildKeyAreaSection(framework, ka, data))
+    .map((ka) => buildKeyAreaSection(framework, ka, data, answers))
     .join("");
 
   return `
@@ -115,12 +119,12 @@ function buildMarkup(framework, data) {
   `;
 }
 
-function buildKeyAreaSection(framework, keyArea, data) {
+function buildKeyAreaSection(framework, keyArea, data, answers) {
   const items = data.checkpoints.filter((cp) => cp.keyAreaCode === keyArea.code);
   const body =
     framework === "tpi-next"
-      ? buildTpiNextStages(keyArea, items, data.stages)
-      : buildCheckpointList(items);
+      ? buildTpiNextStages(keyArea, items, data.stages, answers)
+      : buildCheckpointList(items, answers);
 
   return `
     <details class="key-area" open>
@@ -134,7 +138,7 @@ function buildKeyAreaSection(framework, keyArea, data) {
   `;
 }
 
-function buildTpiNextStages(keyArea, items, stages) {
+function buildTpiNextStages(keyArea, items, stages, answers) {
   return ["controlled", "efficient", "optimizing"]
     .map((stageKey) => {
       const stageItems = items.filter((cp) => cp.stage === stageKey);
@@ -148,21 +152,24 @@ function buildTpiNextStages(keyArea, items, stages) {
         <div class="stage">
           <h3 class="stage__title">${STAGE_LABELS[stageKey]}</h3>
           ${stageInfo ? `<p class="stage__description">${escapeHtml(stageInfo.descriptionJa)}</p>` : ""}
-          ${buildCheckpointList(stageItems)}
+          ${buildCheckpointList(stageItems, answers)}
         </div>
       `;
     })
     .join("");
 }
 
-function buildCheckpointList(items) {
-  return `<ol class="checkpoint-list">${items.map(buildCheckpointRow).join("")}</ol>`;
+function buildCheckpointList(items, answers) {
+  return `<ol class="checkpoint-list">${items
+    .map((cp) => buildCheckpointRow(cp, answers))
+    .join("")}</ol>`;
 }
 
-function buildCheckpointRow(checkpoint) {
+function buildCheckpointRow(checkpoint, answers) {
   const axisBadge = checkpoint.axis
     ? `<span class="badge badge--axis">${AXIS_LABELS[checkpoint.axis]}</span>`
     : "";
+  const selectedValue = answers[checkpoint.id];
 
   return `
     <li class="checkpoint" data-checkpoint-block="${escapeHtml(checkpoint.id)}">
@@ -171,15 +178,15 @@ function buildCheckpointRow(checkpoint) {
         <span>${escapeHtml(checkpoint.textJa)}</span>
       </div>
       <div class="checkpoint__options" role="radiogroup">
-        ${buildRadioOption(checkpoint.id, "met", "満たしている")}
-        ${buildRadioOption(checkpoint.id, "not_met", "満たしていない")}
-        ${buildRadioOption(checkpoint.id, "n_a", "該当なし")}
+        ${buildRadioOption(checkpoint.id, "met", "満たしている", selectedValue)}
+        ${buildRadioOption(checkpoint.id, "not_met", "満たしていない", selectedValue)}
+        ${buildRadioOption(checkpoint.id, "n_a", "該当なし", selectedValue)}
       </div>
     </li>
   `;
 }
 
-function buildRadioOption(checkpointId, value, label) {
+function buildRadioOption(checkpointId, value, label, selectedValue) {
   const inputId = `cp-${checkpointId}-${value}`;
   return `
     <label class="radio-pill" for="${escapeHtml(inputId)}">
@@ -189,6 +196,7 @@ function buildRadioOption(checkpointId, value, label) {
         name="cp-${escapeHtml(checkpointId)}"
         value="${value}"
         data-checkpoint-id="${escapeHtml(checkpointId)}"
+        ${selectedValue === value ? "checked" : ""}
       />
       <span>${label}</span>
     </label>
