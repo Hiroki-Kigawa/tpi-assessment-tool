@@ -8,7 +8,7 @@ import {
   computeAgileTpiMatrix,
   computeKeyAreaPercentages,
 } from "../maturity.js";
-import { getDraftAnswers } from "../state.js";
+import { getDraftAnswers, getPreservedReview, commitReview } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
 import { renderSpiderChart } from "../charts/spider.js";
 import { generateTpiNextReview, generateAgileTpiReview } from "../review.js";
@@ -22,10 +22,11 @@ const FRAMEWORK_TITLES = {
 // 結果はどこにも保存せず、表示のたびにlocalStorage上の回答（js/state.js）から
 // 算出し直す。これにより、診断完了直後の遷移でも、後日ブラウザを開き直して
 // このURLに直接アクセスした場合でも同じ結果が再現できる。
-// 短評欄も同様に、この画面を表示するたびにjs/review.jsのルールベースで
-// 常に生成し直す（前回の編集内容は保持しない）。これは、回答を修正して
-// 再度この画面に来たときに、古い短評が新しい診断結果と食い違ったまま
-// 残ってしまうのを避けるため。編集自体はこの画面を表示している間は可能。
+// 短評欄は、前回この画面を表示した時点の回答と現在の回答が完全一致していれば
+// （＝診断結果に変化がなければ）保存済みの内容をそのまま復元し、1件でも
+// 変わっていればjs/review.jsのルールベースで新しく生成し直す（js/state.js参照）。
+// これにより、誤って診断画面に戻ってすぐ結果画面に戻ってきただけでは編集内容が
+// 消えず、実際に回答を修正した場合だけ新しい診断結果に基づく文言に切り替わる。
 //
 // PDF出力は次フェーズで実装する（PLAN.mdフェーズ6）。
 export async function renderResult(container, framework) {
@@ -74,10 +75,17 @@ export async function renderResult(container, framework) {
     )
     .join("");
 
+  const preservedReview = getPreservedReview(framework, answers);
   const reviewText =
-    framework === "tpi-next"
-      ? generateTpiNextReview(matrix, data.checkpoints, data.keyAreas)
-      : generateAgileTpiReview(matrix, data.checkpoints, data.keyAreas);
+    preservedReview !== null
+      ? preservedReview
+      : framework === "tpi-next"
+        ? generateTpiNextReview(matrix, data.checkpoints, data.keyAreas)
+        : generateAgileTpiReview(matrix, data.checkpoints, data.keyAreas);
+  if (preservedReview === null) {
+    // 新しく生成したデフォルト文言を、今回の回答内容とセットで次回比較用の基準点として保存する。
+    commitReview(framework, reviewText, answers);
+  }
 
   container.innerHTML = `
     <div class="result">
@@ -119,7 +127,7 @@ export async function renderResult(container, framework) {
       <section class="result-section">
         <h2>③短評</h2>
         <p class="result-section__lead">
-          診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（この画面を離れて再度訪れると、その時点の診断結果に基づく内容に再生成されます）。
+          診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（編集内容は、回答を変更しない限り保持されます）。
         </p>
         <textarea id="review-textarea" class="review-textarea">${escapeHtml(reviewText)}</textarea>
       </section>
@@ -129,4 +137,9 @@ export async function renderResult(container, framework) {
       </p>
     </div>
   `;
+
+  const reviewTextarea = container.querySelector("#review-textarea");
+  reviewTextarea.addEventListener("input", () => {
+    commitReview(framework, reviewTextarea.value, answers);
+  });
 }
