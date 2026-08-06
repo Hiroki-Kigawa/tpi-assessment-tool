@@ -106,16 +106,43 @@ export function computeAgileTpiMatrix({ checkpoints }, answers) {
  */
 export function computeKeyAreaPercentages(keyAreas, checkpoints, answers) {
   return keyAreas.map((ka) => {
-    const items = checkpoints.filter((cp) => cp.keyAreaCode === ka.code);
-    let met = 0;
-    let notMet = 0;
-    for (const cp of items) {
-      const status = answers[cp.id];
-      if (status === STATUS.MET) met += 1;
-      else if (status === STATUS.NOT_MET) notMet += 1;
-    }
-    const denominator = met + notMet;
-    const percentage = denominator === 0 ? 0 : Math.round((met / denominator) * 1000) / 10;
-    return { keyAreaCode: ka.code, nameJa: ka.nameJa, percentage };
+    const statuses = checkpoints
+      .filter((cp) => cp.keyAreaCode === ka.code)
+      .map((cp) => answers[cp.id]);
+    const { met, total, percentage } = tallyPercentage(statuses);
+    return { keyAreaCode: ka.code, nameJa: ka.nameJa, met, total, percentage };
+  });
+}
+
+function tallyPercentage(statuses) {
+  let met = 0;
+  let notMet = 0;
+  for (const status of statuses) {
+    if (status === STATUS.MET) met += 1;
+    else if (status === STATUS.NOT_MET) notMet += 1;
+  }
+  const total = met + notMet;
+  const percentage = total === 0 ? 0 : Math.round((met / total) * 1000) / 10;
+  return { met, total, percentage };
+}
+
+/**
+ * キーエリア×グループ（TPI NEXTは段階、Agile TPIは軸）ごとの達成率を算出する。
+ * matrixは computeTpiNextMatrix() / computeAgileTpiMatrix() の戻り値。
+ * groupField は matrix内のグルーピングキー（"stage" または "axis"）、
+ * groupValues はその値を表示したい順に並べたもの。
+ *
+ * 戻り値: キーエリアごとに { keyAreaCode, nameJa, groups: [{ groupValue, met, total, percentage }] }
+ */
+export function computeGroupedPercentages(matrix, groupField, groupValues, keyAreas) {
+  return keyAreas.map((ka) => {
+    const groups = groupValues.map((groupValue) => {
+      const statuses = matrix
+        .filter((c) => c.keyAreaCode === ka.code && c[groupField] === groupValue)
+        .map((c) => c.status);
+      const { met, total, percentage } = tallyPercentage(statuses);
+      return { groupValue, met, total, percentage };
+    });
+    return { keyAreaCode: ka.code, nameJa: ka.nameJa, groups };
   });
 }

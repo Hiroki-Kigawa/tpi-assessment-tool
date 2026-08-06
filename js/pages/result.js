@@ -7,6 +7,7 @@ import {
   computeTpiNextMatrix,
   computeAgileTpiMatrix,
   computeKeyAreaPercentages,
+  computeGroupedPercentages,
 } from "../maturity.js";
 import { getDraftAnswers, getPreservedReview, commitReview } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
@@ -18,6 +19,30 @@ const FRAMEWORK_TITLES = {
   "tpi-next": "TPI NEXT 診断結果",
   "agile-tpi": "Agile TPI 診断結果",
 };
+
+// 「キーエリア毎の達成率」表の軸列定義。TPI NEXTは段階、Agile TPIは軸でグルーピングする。
+const AXIS_CONFIG = {
+  "tpi-next": {
+    groupField: "stage",
+    groups: [
+      { value: "controlled", label: "Controlled" },
+      { value: "efficient", label: "Efficient" },
+      { value: "optimizing", label: "Optimizing" },
+    ],
+  },
+  "agile-tpi": {
+    groupField: "axis",
+    groups: [
+      { value: "professional", label: "Professional" },
+      { value: "team", label: "Team" },
+      { value: "organization", label: "Organization" },
+    ],
+  },
+};
+
+function formatPercentage(met, total, percentage) {
+  return `${percentage}%(${met}/${total})`;
+}
 
 // 結果はどこにも保存せず、表示のたびにlocalStorage上の回答（js/state.js）から
 // 算出し直す。これにより、診断完了直後の遷移でも、後日ブラウザを開き直して
@@ -63,16 +88,35 @@ export async function renderResult(container, framework) {
       : renderAgileTpiMatrix(matrix, data.keyAreas);
   const spiderHtml = renderSpiderChart(percentages);
 
-  const percentageRows = percentages
-    .map(
-      (p) => `
+  const axisConfig = AXIS_CONFIG[framework];
+  const groupedPercentages = computeGroupedPercentages(
+    matrix,
+    axisConfig.groupField,
+    axisConfig.groups.map((g) => g.value),
+    data.keyAreas
+  );
+
+  const percentageHeaderCells = axisConfig.groups
+    .map((g) => `<th>${escapeHtml(g.label)}</th>`)
+    .join("");
+
+  const percentageRows = data.keyAreas
+    .map((ka, index) => {
+      const overall = percentages[index];
+      const grouped = groupedPercentages[index];
+      const groupCells = grouped.groups
+        .map((g) => `<td>${formatPercentage(g.met, g.total, g.percentage)}</td>`)
+        .join("");
+
+      return `
         <tr>
-          <td>${escapeHtml(p.keyAreaCode)}</td>
-          <td>${escapeHtml(p.nameJa)}</td>
-          <td>${p.percentage}%</td>
+          <td>${escapeHtml(ka.code)}</td>
+          <td>${escapeHtml(ka.nameJa)}</td>
+          ${groupCells}
+          <td>${formatPercentage(overall.met, overall.total, overall.percentage)}</td>
         </tr>
-      `
-    )
+      `;
+    })
     .join("");
 
   const preservedReview = getPreservedReview(framework, answers);
@@ -114,14 +158,17 @@ export async function renderResult(container, framework) {
       <section class="result-section">
         <h2>キーエリア毎の達成率</h2>
         <p class="result-section__lead">
-          上記グラフの数値を、キーエリアごとの達成率一覧として表示しています。
+          キーエリア×${framework === "tpi-next" ? "段階" : "軸"}ごとの達成率と、全体の達成率（一番右の列）を一覧表示しています。
+          達成率はパーセンテージと分子/分母（満たしている数/満たしている＋満たしていない数）を併記しています。
         </p>
-        <table class="result-table">
-          <thead>
-            <tr><th>No.</th><th>キーエリア</th><th>達成率</th></tr>
-          </thead>
-          <tbody>${percentageRows}</tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="result-table">
+            <thead>
+              <tr><th>No.</th><th>キーエリア</th>${percentageHeaderCells}<th>全体</th></tr>
+            </thead>
+            <tbody>${percentageRows}</tbody>
+          </table>
+        </div>
       </section>
 
       <section class="result-section">
