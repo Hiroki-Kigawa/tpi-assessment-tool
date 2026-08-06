@@ -20,7 +20,7 @@ const FRAMEWORK_TITLES = {
   "agile-tpi": "Agile TPI 診断結果",
 };
 
-// 「キーエリア毎の達成率」表の軸列定義。TPI NEXTは段階、Agile TPIは軸でグルーピングする。
+// 「キーエリア別達成率」表の軸列定義。TPI NEXTは段階、Agile TPIは軸でグルーピングする。
 const AXIS_CONFIG = {
   "tpi-next": {
     groupField: "stage",
@@ -147,7 +147,7 @@ export async function renderResult(container, framework) {
       </section>
 
       <section class="result-section">
-        <h2>②スパイダーグラフ（キーエリア別達成率）</h2>
+        <h2>②スパイダーグラフ</h2>
         <div class="spider-legend">
           <span class="legend-item"><span class="legend-swatch legend-swatch--current"></span>現在の達成率</span>
           <span class="legend-item"><span class="legend-swatch legend-swatch--max"></span>満点（100%）</span>
@@ -156,7 +156,7 @@ export async function renderResult(container, framework) {
       </section>
 
       <section class="result-section">
-        <h2>キーエリア毎の達成率</h2>
+        <h2>③キーエリア別達成率</h2>
         <p class="result-section__lead">
           キーエリア×${framework === "tpi-next" ? "段階" : "軸"}ごとの達成率と、全体の達成率（一番右の列）を一覧表示しています。
           達成率はパーセンテージと分子/分母（満たしている数/満たしている＋満たしていない数）を併記しています。
@@ -172,7 +172,7 @@ export async function renderResult(container, framework) {
       </section>
 
       <section class="result-section">
-        <h2>③短評</h2>
+        <h2>④短評</h2>
         <p class="result-section__lead">
           診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（編集内容は、回答を変更しない限り保持されます）。
         </p>
