@@ -105,44 +105,47 @@ function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml })
         align-items: center;
         gap: 4px;
       }
+      #pdf-capture-root .pdf-matrix-row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
       #pdf-capture-root .pdf-row {
         display: flex;
-        gap: 16px;
+        gap: 20px;
         align-items: flex-start;
+        justify-content: center;
         margin-bottom: 14px;
       }
-      #pdf-capture-root .pdf-row > div:first-child {
-        flex: 0 0 auto;
-      }
-      #pdf-capture-root .pdf-row > div:last-child {
+      #pdf-capture-root .pdf-row > div {
         flex: 0 0 auto;
       }
       #pdf-capture-root .spider-chart {
-        width: 380px;
+        width: 340px;
       }
       #pdf-capture-root .matrix-row {
         gap: 8px;
         padding: 2px 0;
       }
       #pdf-capture-root .matrix-row--header {
-        font-size: 8px;
+        font-size: 9px;
         padding-bottom: 3px;
       }
       #pdf-capture-root .matrix-row__label {
-        width: 130px;
-        font-size: 9px;
+        width: 150px;
+        font-size: 10px;
       }
       #pdf-capture-root .matrix-cell {
-        width: 14px;
-        height: 14px;
-        font-size: 7px;
+        width: 18px;
+        height: 18px;
+        font-size: 8px;
         border-radius: 2px;
       }
       #pdf-capture-root .matrix-row__group {
-        width: calc(var(--cell-count, 1) * 14px + (var(--cell-count, 1) - 1) * 2px);
+        width: calc(var(--cell-count, 1) * 18px + (var(--cell-count, 1) - 1) * 2px);
       }
       #pdf-capture-root .matrix-row:not(.matrix-row--header) .matrix-row__group {
-        grid-template-columns: repeat(var(--cell-count, 1), 14px);
+        grid-template-columns: repeat(var(--cell-count, 1), 18px);
         gap: 2px;
       }
       #pdf-capture-root .result-table {
@@ -161,11 +164,11 @@ function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml })
       <span><span class="matrix-cell matrix-cell--not-met"></span>満たしていない</span>
       <span><span class="matrix-cell matrix-cell--na"></span>該当なし</span>
     </div>
+    <div class="pdf-matrix-row">${matrixHtml}</div>
     <div class="pdf-row">
-      <div>${matrixHtml}</div>
       <div>${spiderHtml}</div>
+      <div>${tableHtml}</div>
     </div>
-    <div>${tableHtml}</div>
   `;
   document.body.appendChild(container);
   return container;
