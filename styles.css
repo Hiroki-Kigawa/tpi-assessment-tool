@@ -668,8 +668,8 @@ a {
 }
 
 .matrix-row__group {
-  flex-shrink: 0;
-  width: calc(var(--cell-count, 1) * 24px + (var(--cell-count, 1) - 1) * 3px);
+  flex: 1;
+  min-width: 0;
 }
 
 .matrix-row--header .matrix-row__group {
@@ -680,12 +680,13 @@ a {
 }
 
 .matrix-row:not(.matrix-row--header) .matrix-row__group {
-  display: grid;
-  grid-template-columns: repeat(var(--cell-count, 1), 24px);
+  display: flex;
   gap: 3px;
 }
 
 .matrix-cell {
+  flex: 1 1 0;
+  min-width: 0;
   width: 24px;
   height: 24px;
   display: inline-flex;

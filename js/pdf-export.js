@@ -141,11 +141,7 @@ function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml })
         font-size: 8px;
         border-radius: 2px;
       }
-      #pdf-capture-root .matrix-row__group {
-        width: calc(var(--cell-count, 1) * 18px + (var(--cell-count, 1) - 1) * 2px);
-      }
       #pdf-capture-root .matrix-row:not(.matrix-row--header) .matrix-row__group {
-        grid-template-columns: repeat(var(--cell-count, 1), 18px);
         gap: 2px;
       }
       #pdf-capture-root .result-table {
