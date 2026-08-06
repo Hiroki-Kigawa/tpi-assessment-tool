@@ -13,6 +13,7 @@ import { getDraftAnswers, getPreservedReview, commitReview } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
 import { renderSpiderChart } from "../charts/spider.js";
 import { generateTpiNextReview, generateAgileTpiReview } from "../review.js";
+import { exportResultPdf } from "../pdf-export.js";
 import { escapeHtml } from "../util.js";
 
 const FRAMEWORK_TITLES = {
@@ -53,7 +54,8 @@ function formatPercentage(met, total, percentage) {
 // これにより、誤って診断画面に戻ってすぐ結果画面に戻ってきただけでは編集内容が
 // 消えず、実際に回答を修正した場合だけ新しい診断結果に基づく文言に切り替わる。
 //
-// PDF出力は次フェーズで実装する（PLAN.mdフェーズ6）。
+// PDF出力（js/pdf-export.js）は、画面表示に使っているmatrixHtml/spiderHtml/
+// tableHtmlの文字列と、現在のreviewTextareaの内容をそのまま渡す。
 export async function renderResult(container, framework) {
   container.innerHTML = `<p class="loading">読み込み中...</p>`;
 
@@ -119,6 +121,16 @@ export async function renderResult(container, framework) {
     })
     .join("");
 
+  // 画面表示・PDF出力（html2canvasでの画像化）の両方で使い回すテーブル本体。
+  const tableHtml = `
+    <table class="result-table">
+      <thead>
+        <tr><th>No.</th><th>キーエリア</th>${percentageHeaderCells}<th>全体</th></tr>
+      </thead>
+      <tbody>${percentageRows}</tbody>
+    </table>
+  `;
+
   const preservedReview = getPreservedReview(framework, answers);
   const reviewText =
     preservedReview !== null
@@ -161,14 +173,7 @@ export async function renderResult(container, framework) {
           キーエリア×${framework === "tpi-next" ? "段階" : "軸"}ごとの達成率と、全体の達成率（一番右の列）を一覧表示しています。
           達成率はパーセンテージと分子/分母（満たしている数/満たしている＋満たしていない数）を併記しています。
         </p>
-        <div class="table-scroll">
-          <table class="result-table">
-            <thead>
-              <tr><th>No.</th><th>キーエリア</th>${percentageHeaderCells}<th>全体</th></tr>
-            </thead>
-            <tbody>${percentageRows}</tbody>
-          </table>
-        </div>
+        <div class="table-scroll">${tableHtml}</div>
       </section>
 
       <section class="result-section">
@@ -179,14 +184,40 @@ export async function renderResult(container, framework) {
         <textarea id="review-textarea" class="review-textarea">${escapeHtml(reviewText)}</textarea>
       </section>
 
-      <p class="result__notice">
-        PDF出力は次のフェーズで実装予定です。
-      </p>
+      <div class="result__pdf">
+        <button type="button" id="export-pdf-btn" class="btn btn--primary">PDFをダウンロード</button>
+        <p id="export-pdf-error" class="export-pdf-error" hidden></p>
+      </div>
     </div>
   `;
 
   const reviewTextarea = container.querySelector("#review-textarea");
   reviewTextarea.addEventListener("input", () => {
     commitReview(framework, reviewTextarea.value, answers);
+  });
+
+  const exportBtn = container.querySelector("#export-pdf-btn");
+  const exportError = container.querySelector("#export-pdf-error");
+  exportBtn.addEventListener("click", async () => {
+    exportBtn.disabled = true;
+    exportBtn.textContent = "生成中...";
+    exportError.hidden = true;
+
+    try {
+      await exportResultPdf({
+        framework,
+        matrixHtml,
+        spiderHtml,
+        tableHtml,
+        reviewText: reviewTextarea.value,
+      });
+    } catch (err) {
+      console.error(err);
+      exportError.hidden = false;
+      exportError.textContent = "PDFの生成に失敗しました。時間をおいて再度お試しください。";
+    } finally {
+      exportBtn.disabled = false;
+      exportBtn.textContent = "PDFをダウンロード";
+    }
   });
 }

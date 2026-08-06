@@ -579,11 +579,15 @@ a {
   outline-offset: 1px;
 }
 
-.result__notice {
-  color: var(--color-text-muted);
-  background: var(--color-primary-tint);
-  padding: 12px 16px;
-  border-radius: var(--radius-m);
+.result__pdf {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.export-pdf-error {
+  margin-top: 10px;
+  color: var(--color-not-met);
+  font-size: 13px;
 }
 
 .legend-item {
