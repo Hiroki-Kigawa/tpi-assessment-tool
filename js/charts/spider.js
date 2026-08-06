@@ -14,6 +14,10 @@ const MAX_RADIUS = 276;
 const RINGS = [20, 40, 60, 80, 100];
 const LABEL_OFFSET = 16;
 const MAX_CHARS_PER_LINE = 6;
+// 目盛りラベル（20%〜100%）は真上のスポーク付近にしか描画されないため、
+// 先頭（0番目、常に真上に配置される）のキーエリアラベルだけがそれと重なりうる。
+// 他のラベル位置には影響させたくないので、先頭だけ追加で外側にずらす。
+const TOP_LABEL_EXTRA_OFFSET = 18;
 
 function polarPoint(angle, radiusRatio) {
   const r = MAX_RADIUS * radiusRatio;
@@ -75,7 +79,8 @@ export function renderSpiderChart(keyAreaPercentages) {
   const axisLabels = keyAreaPercentages
     .map((ka, i) => {
       const angle = angleForIndex(i, total);
-      const p = polarPoint(angle, 1 + LABEL_OFFSET / MAX_RADIUS);
+      const extraOffset = i === 0 ? TOP_LABEL_EXTRA_OFFSET : 0;
+      const p = polarPoint(angle, 1 + (LABEL_OFFSET + extraOffset) / MAX_RADIUS);
       const cos = Math.cos(angle);
       const anchor = cos > 0.15 ? "start" : cos < -0.15 ? "end" : "middle";
       const lines = wrapLabel(ka.nameJa);
