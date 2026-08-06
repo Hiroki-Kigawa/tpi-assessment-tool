@@ -8,7 +8,7 @@ import {
   computeAgileTpiMatrix,
   computeKeyAreaPercentages,
 } from "../maturity.js";
-import { getDraftAnswers, getSavedReview, saveReview } from "../state.js";
+import { getDraftAnswers } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
 import { renderSpiderChart } from "../charts/spider.js";
 import { generateTpiNextReview, generateAgileTpiReview } from "../review.js";
@@ -22,8 +22,10 @@ const FRAMEWORK_TITLES = {
 // 結果はどこにも保存せず、表示のたびにlocalStorage上の回答（js/state.js）から
 // 算出し直す。これにより、診断完了直後の遷移でも、後日ブラウザを開き直して
 // このURLに直接アクセスした場合でも同じ結果が再現できる。
-// 短評欄はユーザーが加筆・修正した内容のみlocalStorageに保存し（js/state.js）、
-// 未編集の場合は毎回js/review.jsのルールベースで文言を生成し直す。
+// 短評欄も同様に、この画面を表示するたびにjs/review.jsのルールベースで
+// 常に生成し直す（前回の編集内容は保持しない）。これは、回答を修正して
+// 再度この画面に来たときに、古い短評が新しい診断結果と食い違ったまま
+// 残ってしまうのを避けるため。編集自体はこの画面を表示している間は可能。
 //
 // PDF出力は次フェーズで実装する（PLAN.mdフェーズ6）。
 export async function renderResult(container, framework) {
@@ -72,12 +74,10 @@ export async function renderResult(container, framework) {
     )
     .join("");
 
-  const defaultReview =
+  const reviewText =
     framework === "tpi-next"
       ? generateTpiNextReview(matrix, data.checkpoints, data.keyAreas)
       : generateAgileTpiReview(matrix, data.checkpoints, data.keyAreas);
-  const savedReview = getSavedReview(framework);
-  const reviewText = savedReview !== null ? savedReview : defaultReview;
 
   container.innerHTML = `
     <div class="result">
@@ -119,7 +119,7 @@ export async function renderResult(container, framework) {
       <section class="result-section">
         <h2>③短評</h2>
         <p class="result-section__lead">
-          診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（編集内容はこのブラウザに保存されます）。
+          診断結果をもとに自動生成したコメントです。内容は自由に加筆・修正できます（この画面を離れて再度訪れると、その時点の診断結果に基づく内容に再生成されます）。
         </p>
         <textarea id="review-textarea" class="review-textarea">${escapeHtml(reviewText)}</textarea>
       </section>
@@ -129,9 +129,4 @@ export async function renderResult(container, framework) {
       </p>
     </div>
   `;
-
-  const reviewTextarea = container.querySelector("#review-textarea");
-  reviewTextarea.addEventListener("input", () => {
-    saveReview(framework, reviewTextarea.value);
-  });
 }
