@@ -7,9 +7,12 @@ import { escapeHtml } from "../util.js";
 
 const SIZE = 760;
 const CENTER = SIZE / 2;
-const MAX_RADIUS = 220;
+// ラベル見切れ対策として margin = CENTER - MAX_RADIUS - LABEL_OFFSET を
+// 「ラベル文字列の最大幅＋余白」ぶんだけ確保しつつ、それ以外は極力グラフ本体に
+// 使う（MAX_RADIUSを大きくする）ことで余白を最小化している。
+const MAX_RADIUS = 276;
 const RINGS = [20, 40, 60, 80, 100];
-const LABEL_OFFSET = 28;
+const LABEL_OFFSET = 16;
 const MAX_CHARS_PER_LINE = 6;
 
 function polarPoint(angle, radiusRatio) {
