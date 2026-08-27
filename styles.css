@@ -509,6 +509,43 @@ a {
   margin: 0 0 24px;
 }
 
+.result__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.result__meta-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result__meta-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.result__meta-input {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-s);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.result__meta-input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+#project-team-name {
+  width: 240px;
+}
+
 .result-section {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

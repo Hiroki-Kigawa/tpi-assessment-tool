@@ -9,7 +9,7 @@ import {
   computeKeyAreaPercentages,
   computeGroupedPercentages,
 } from "../maturity.js";
-import { getDraftAnswers, getPreservedReview, commitReview } from "../state.js";
+import { getDraftAnswers, getPreservedReview, commitReview, getProjectMeta, saveProjectMeta } from "../state.js";
 import { renderTpiNextMatrix, renderAgileTpiMatrix } from "../charts/matrix.js";
 import { renderSpiderChart } from "../charts/spider.js";
 import { generateTpiNextReview, generateAgileTpiReview } from "../review.js";
@@ -131,6 +131,9 @@ export async function renderResult(container, framework) {
     </table>
   `;
 
+  const projectMeta = getProjectMeta();
+  const todayIso = new Date().toISOString().slice(0, 10);
+
   const preservedReview = getPreservedReview(framework, answers);
   const reviewText =
     preservedReview !== null
@@ -147,6 +150,28 @@ export async function renderResult(container, framework) {
     <div class="result">
       <a class="back-link" href="#/assessment/${framework}">← 回答を修正する</a>
       <h1>${escapeHtml(FRAMEWORK_TITLES[framework])}</h1>
+
+      <div class="result__meta">
+        <div class="result__meta-field">
+          <label class="result__meta-label" for="project-team-name">プロジェクトチーム名</label>
+          <input
+            type="text"
+            id="project-team-name"
+            class="result__meta-input"
+            placeholder="例：〇〇プロジェクト"
+            value="${escapeHtml(projectMeta.teamName || "")}"
+          />
+        </div>
+        <div class="result__meta-field">
+          <label class="result__meta-label" for="project-date">実施日</label>
+          <input
+            type="date"
+            id="project-date"
+            class="result__meta-input"
+            value="${escapeHtml(projectMeta.date || todayIso)}"
+          />
+        </div>
+      </div>
 
       <section class="result-section">
         <h2>①成熟度マトリクス</h2>
@@ -196,6 +221,15 @@ export async function renderResult(container, framework) {
     commitReview(framework, reviewTextarea.value, answers);
   });
 
+  const teamNameInput = container.querySelector("#project-team-name");
+  const dateInput = container.querySelector("#project-date");
+  teamNameInput.addEventListener("input", () => {
+    saveProjectMeta({ teamName: teamNameInput.value });
+  });
+  dateInput.addEventListener("input", () => {
+    saveProjectMeta({ date: dateInput.value });
+  });
+
   const exportBtn = container.querySelector("#export-pdf-btn");
   const exportError = container.querySelector("#export-pdf-error");
   exportBtn.addEventListener("click", async () => {
@@ -210,6 +244,8 @@ export async function renderResult(container, framework) {
         spiderHtml,
         tableHtml,
         reviewText: reviewTextarea.value,
+        teamName: teamNameInput.value,
+        date: dateInput.value,
       });
     } catch (err) {
       console.error(err);

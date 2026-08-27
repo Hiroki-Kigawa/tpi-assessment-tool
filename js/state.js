@@ -117,6 +117,35 @@ function createReviewStore(storageKey) {
 
 const reviewStore = createReviewStore("tpiAssessmentTool.review.v1");
 
+// プロジェクトチーム名・実施日はPDF出力用のメタ情報。TPI NEXT/Agile TPIで
+// 同じチームが両方診断するケースを想定し、フレームワークをまたいで共通の1件のみ保持する。
+const PROJECT_META_KEY = "tpiAssessmentTool.projectMeta.v1";
+
+function loadProjectMeta() {
+  try {
+    const raw = localStorage.getItem(PROJECT_META_KEY);
+    return raw ? JSON.parse(raw) : { teamName: "", date: "" };
+  } catch (err) {
+    console.warn(`localStorageから読み込めませんでした（${PROJECT_META_KEY}）。この状態では保存されません。`, err);
+    return { teamName: "", date: "" };
+  }
+}
+
+let projectMeta = loadProjectMeta();
+
+export function getProjectMeta() {
+  return projectMeta;
+}
+
+export function saveProjectMeta(partial) {
+  projectMeta = { ...projectMeta, ...partial };
+  try {
+    localStorage.setItem(PROJECT_META_KEY, JSON.stringify(projectMeta));
+  } catch (err) {
+    console.warn(`localStorageへの保存に失敗しました（${PROJECT_META_KEY}）。このセッション内でのみ保持されます。`, err);
+  }
+}
+
 function answersEqual(a, b) {
   if (!a || !b) return false;
   const keysA = Object.keys(a);

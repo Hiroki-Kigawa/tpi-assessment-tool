@@ -15,6 +15,8 @@
 // 残りスペースに応じてフォントサイズを自動縮小し（下限8pt）、それでも
 // 収まらない場合は短評のみ2ページ目以降に続ける（内容は切り捨てない）。
 
+import { escapeHtml } from "./util.js";
+
 const FRAMEWORK_TITLES = {
   "tpi-next": "TPI NEXT 診断結果",
   "agile-tpi": "Agile TPI 診断結果",
@@ -58,6 +60,13 @@ function formatDateJa(date) {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 }
 
+// <input type="date">の値（YYYY-MM-DD）を、タイムゾーンの影響を受けずに
+// そのままの年月日でDateへ変換する（new Date(isoString)はUTC解釈になるため使わない）。
+function parseIsoDateLocal(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function buildFileName(framework) {
   const now = new Date();
   const yyyy = now.getFullYear();
@@ -69,7 +78,11 @@ function buildFileName(framework) {
 // 画面表示用のマトリクス・スパイダーグラフ・表のHTML断片を、非表示のコンテナに
 // 印刷向けのコンパクトなサイズで流し込む。スタイルは同じクラス名（.matrix-cell等）
 // を使い回し、IDセレクタで上書きすることで既存のstyles.cssのルールに勝たせている。
-function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml }) {
+function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml, teamName, reportDate }) {
+  const metaParts = [];
+  if (teamName && teamName.trim()) metaParts.push(escapeHtml(teamName.trim()));
+  metaParts.push(`実施日: ${formatDateJa(reportDate)}`);
+
   const container = document.createElement("div");
   container.id = "pdf-capture-root";
   container.innerHTML = `
@@ -154,7 +167,7 @@ function buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml })
       }
     </style>
     <h1>${FRAMEWORK_TITLES[framework]}</h1>
-    <p class="pdf-meta">実施日: ${formatDateJa(new Date())}</p>
+    <p class="pdf-meta">${metaParts.join(" ／ ")}</p>
     <div class="pdf-legend">
       <span><span class="matrix-cell matrix-cell--met"></span>満たしている</span>
       <span><span class="matrix-cell matrix-cell--not-met"></span>満たしていない</span>
@@ -220,15 +233,19 @@ function renderReviewText(doc, reviewText, startY, pageBottom) {
 /**
  * 診断結果画面の①②③④をレイアウトしたPDFを生成し、ダウンロードする。
  * matrixHtml/spiderHtml/tableHtmlは画面表示で使っているHTML文字列をそのまま渡す。
+ * teamName/dateは結果画面上部の入力欄の値（dateは<input type="date">形式の
+ * YYYY-MM-DD文字列）。dateが未入力の場合は生成時点の日付にフォールバックする。
  */
-export async function exportResultPdf({ framework, matrixHtml, spiderHtml, tableHtml, reviewText }) {
+export async function exportResultPdf({ framework, matrixHtml, spiderHtml, tableHtml, reviewText, teamName, date }) {
   if (!window.jspdf || !window.html2canvas) {
     throw new Error("PDF生成に必要なライブラリの読み込みに失敗しました。ページを再読み込みしてください。");
   }
 
+  const reportDate = date ? parseIsoDateLocal(date) : new Date();
+
   const [fontBase64] = await Promise.all([loadFontBase64()]);
 
-  const container = buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml });
+  const container = buildCaptureContainer({ framework, matrixHtml, spiderHtml, tableHtml, teamName, reportDate });
   let canvas;
   try {
     canvas = await window.html2canvas(container, { scale: 2, backgroundColor: "#ffffff" });
